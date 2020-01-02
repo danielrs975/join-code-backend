@@ -1,0 +1,19 @@
+{
+  "name": "join-code-backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/danielrs975/join-code-backend.git"
+  },
+  "author": "Daniel Rodriguez",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/danielrs975/join-code-backend/issues"
+  },
+  "homepage": "https://github.com/danielrs975/join-code-backend#readme"
+}
