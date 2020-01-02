@@ -1,7 +1,5 @@
 # Welcome to Join Code API
 
-========
-
 ## About
 
 --------
