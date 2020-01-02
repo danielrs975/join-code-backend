@@ -33,8 +33,8 @@ To start collaborating in this project you only have to do the following steps
 ```npm install```
 
 3. Create your ".env" in the root of the project and put the following
-..*PORT=3000
-..*MONGODB_URL=mongodb://127.0.0.1:27017/join-code
+⋅⋅⋅PORT=3000
+⋅⋅⋅MONGODB_URL=mongodb://127.0.0.1:27017/join-code
 
 4. Run mongodb in your computer
 ```mongod --dbpath [database-name]```
