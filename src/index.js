@@ -37,12 +37,18 @@ const doc = {
 io.on('connection', (socket) => {
     console.log("A new user arrived", socket.id);
 
+    // Documents events
     socket.emit('change', doc);
 
     socket.on('save', (newDoc) => {
         console.log("Updating the doc", newDoc);
         doc.content = newDoc.content;
         io.emit('change', doc);
+    })
+
+    // Cursor events
+    socket.on('change-cursor', (coords) => {
+        socket.broadcast.emit('update-cursors', coords);
     })
 
     socket.on('disconnect', () => {});
