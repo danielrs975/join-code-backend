@@ -56,9 +56,32 @@ const getUser = (userId) => {
     return users.find((user) => user.socket_id === userId);
 }
 
+/**
+ * This method set the new position of user's cursor
+ * @param {*} userId The id of the user
+ * @param {*} coords the new coords to set
+ */
+const getUserAndSaveCoords = (userId, coords) => {
+    const index = users.findIndex((user) => user.socket_id === userId);
+    if (index !== -1) {
+        users[index].coords = coords;
+        return users[index];
+    }
+}
+
+/**
+ * This method gets all the user in a given doc
+ * @param {*} docId The id of the doc
+ */
+const getUsersOfDoc = (userId, docId) => {
+    return users.filter((user) => user.docId === docId && user.socket_id !== userId);
+}
+
 module.exports = {
     docs,
     addUserToDoc,
     removeUserOfDoc,
-    getUser
+    getUser,
+    getUserAndSaveCoords,
+    getUsersOfDoc
 }

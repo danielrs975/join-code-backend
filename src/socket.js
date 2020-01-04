@@ -1,4 +1,4 @@
-const { docs,  addUserToDoc, removeUserOfDoc, getUser } = require('./utils/document');
+const { docs,  addUserToDoc, removeUserOfDoc, getUserAndSaveCoords, getUsersOfDoc } = require('./utils/document');
 
 module.exports = (io) => {
     io.on('connection', (socket) => {
@@ -12,14 +12,14 @@ module.exports = (io) => {
                 return;
             }
             socket.join(user.docId);
-            socket.broadcast.to(user.docId).emit('notification', `User ${user.socket_id} has joined!`);
+            socket.to(user.docId).broadcast.emit('notification', `User ${user.socket_id} has joined!`);
+        
             // console.log(doc);
             const doc = docs.find((doc) => doc._id === user.docId);
             socket.emit('change', doc);
         })
     
         // Documents events
-    
         socket.on('save', (newDoc) => {
             const doc = docs.find((doc) => doc._id === newDoc._id);
             // console.log("Updating the doc", newDoc);
@@ -27,11 +27,7 @@ module.exports = (io) => {
             io.to(doc._id).emit('change', doc);
         })
     
-        // Cursor events
-        socket.on('change-cursor', (coords) => {
-            const user = getUser(socket.id);
-            if (user) socket.to(user.docId).broadcast.emit('update-cursors', {user, coords});
-        })
+        
     
         socket.on('disconnect', () => {
             const user = removeUserOfDoc(socket.id);
@@ -40,5 +36,11 @@ module.exports = (io) => {
                 io.to(user.docId).emit('user-leave', 'User X leaved');
             }
         });
+
+        // Cursor events
+        // socket.on('change-cursor', (coords) => {
+        //     const user = getUserAndSaveCoords(socket.id, coords);
+        //     if (user) socket.to(user.docId).broadcast.emit('update-cursors', {user, coords});
+        // })
     })
 }
