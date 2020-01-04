@@ -24,35 +24,12 @@ const io = socketio(socket_server);
 // ENV info
 const PORT = process.env.PORT || 3000;
 const SOCKET_PORT = process.env.SOCKET_PORT || 3001;
-
-const doc = {
-    _id: 123,
-    modifyAt: new Date(),
-    content: ''
-}
+const documentHandler = require('./socket');
 
 // This open a comunication directly between
 // the server and the client. This connection permanent
 // until the client disconnect
-io.on('connection', (socket) => {
-    console.log("A new user arrived", socket.id);
-
-    // Documents events
-    socket.emit('change', doc);
-
-    socket.on('save', (newDoc) => {
-        console.log("Updating the doc", newDoc);
-        doc.content = newDoc.content;
-        io.emit('change', doc);
-    })
-
-    // Cursor events
-    socket.on('change-cursor', (coords) => {
-        socket.broadcast.emit('update-cursors', coords);
-    })
-
-    socket.on('disconnect', () => {});
-})
+documentHandler(io);
 
 
 // This is the server that going to receive all
