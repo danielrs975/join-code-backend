@@ -22,8 +22,7 @@ const users = []
  * @param {*} docId The id of the document to edit
  * @param {*} newUser The user who is going to join
  */
-const addUserToDoc = (newUser) => {
-
+const addUserToDoc = (newUser) => { 
     const user = users.find((user) => user.socket_id === newUser.socket_id && user.docId === newUser.docId);
     if (user) {
         return {
@@ -61,8 +60,8 @@ const getUser = (userId) => {
  * @param {*} userId The id of the user
  * @param {*} coords the new coords to set
  */
-const getUserAndSaveCoords = (userId, coords) => {
-    const index = users.findIndex((user) => user.socket_id === userId);
+const getUserAndSaveCoords = (userId, docId, coords) => {
+    const index = users.findIndex((user) => user.socket_id === userId && user.docId === docId);
     if (index !== -1) {
         users[index].coords = coords;
         return users[index];
@@ -73,7 +72,8 @@ const getUserAndSaveCoords = (userId, coords) => {
  * This method gets all the user in a given doc
  * @param {*} docId The id of the doc
  */
-const getUsersOfDoc = (userId, docId) => {
+const getUsersOfDoc = (userId=null, docId) => {
+    if (userId === null) return users;
     return users.filter((user) => user.docId === docId && user.socket_id !== userId);
 }
 
