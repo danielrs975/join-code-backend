@@ -73,7 +73,7 @@ const getUserAndSaveCoords = (userId, docId, coords) => {
  * @param {*} docId The id of the doc
  */
 const getUsersOfDoc = (userId=null, docId) => {
-    if (userId === null) return users;
+    if (userId === null) return users.filter((user) => user.docId === docId);
     return users.filter((user) => user.docId === docId && user.socket_id !== userId);
 }
 
