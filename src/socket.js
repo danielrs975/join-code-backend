@@ -13,8 +13,6 @@ module.exports = (io) => {
             socket.join(user.docId);
             socket.to(user.docId).broadcast.emit('notification', `User ${user.socket_id} has joined!`);
             
-            
-            // console.log(doc);
             const doc = docs.find((doc) => doc._id === user.docId);
             socket.emit('change', doc);
             callback(socket.id);
@@ -24,8 +22,6 @@ module.exports = (io) => {
         // Documents events
         socket.on('save', (newDoc) => {
             const doc = docs.find((doc) => doc._id === newDoc._id);
-            const usersInDoc = getUsersOfDoc(null, doc._id);
-            console.log(usersInDoc);
             // console.log("Updating the doc", newDoc);
             doc.content = newDoc.content;
             io.to(doc._id).emit('change', doc);
