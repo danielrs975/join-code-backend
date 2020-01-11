@@ -17,7 +17,9 @@ const DocumentSchema = new mongoose.Schema(
 		},
 		name    : {
 			type     : String,
-			required : true
+			required : true,
+			unique   : true,
+			trim     : true
 		},
 		users   : {
 			type    : Array,
@@ -28,6 +30,13 @@ const DocumentSchema = new mongoose.Schema(
 		timestamps : true
 	}
 );
+
+DocumentSchema.methods.addUsers = async function(users) {
+	const document = this;
+	document.users = document.users.concat(users.map((user) => mongoose.Types.ObjectId(user)));
+	await document.save();
+	return document;
+};
 
 const Document = mongoose.model('Document', DocumentSchema);
 
