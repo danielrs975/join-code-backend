@@ -79,9 +79,23 @@ const userDocuments = async (req, res) => {
 	}
 };
 
+/**
+ * This controller retrieve the profile of the user
+ * @param {*} req The request info
+ * @param {*} res The response of the request
+ */
+const userProfile = async (req, res) => {
+	try {
+		res.send(req.user);
+	} catch (e) {
+		res.status(500).send(e);
+	}
+};
+
 module.exports = {
 	userSignup,
 	userLogin,
 	userLogout,
-	userDocuments
+	userDocuments,
+	userProfile
 };

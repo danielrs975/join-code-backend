@@ -6,7 +6,7 @@
 const express = require('express');
 const router = new express.Router();
 const auth = require('../middlewares/auth');
-const { userSignup, userLogin, userLogout, userDocuments } = require('../controllers/user.controller');
+const { userSignup, userLogin, userLogout, userDocuments, userProfile } = require('../controllers/user.controller');
 
 /**
  * This router is for create a new user to the app
@@ -35,6 +35,15 @@ router.post('/users/login', userLogin);
  */
 router.post('/users/logout', auth, userLogout);
 
+/**
+ * This router is to retrieve all the documents that the user
+ * is involved
+ */
 router.get('/users/me/documents', auth, userDocuments);
+
+/**
+ * This route if for retrieve my profile info
+ */
+router.get('/users/me/profile', auth, userProfile);
 
 module.exports = router;
