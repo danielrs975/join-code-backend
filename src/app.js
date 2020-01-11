@@ -5,9 +5,13 @@
  */
 
 const express = require('express');
+const userRoutes = require('./routers/user.router');
+const docRoutes = require('./routers/document.router');
 require('./db/connectDb');
 const app = express();
 
 app.use(express.json());
+app.use(userRoutes);
+app.use(docRoutes);
 
 module.exports = app;
