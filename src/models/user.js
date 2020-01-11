@@ -41,6 +41,21 @@ const UserSchema = new mongoose.Schema(
 	}
 );
 
+// UserSchema.set('toJSON', { virtuals: true });
+// UserSchema.set('toObject', { virtuals: true });
+
+UserSchema.virtual('documents', {
+	ref          : 'Document',
+	localField   : '_id',
+	foreignField : 'owner'
+});
+
+UserSchema.virtual('sharedDocuments', {
+	ref          : 'Document',
+	localField   : '_id',
+	foreignField : 'users'
+});
+
 /**
  * Method to generate an authtoken when a user login
  */
@@ -52,6 +67,15 @@ UserSchema.methods.generateAuthToken = async function() {
 	return token;
 };
 
+UserSchema.methods.toJSON = function() {
+	const user = this;
+	const userObject = user.toObject();
+
+	delete userObject.password;
+	delete userObject.tokens;
+
+	return userObject;
+};
 /**
  * This find a user by its credential
  * @param email The email of the user

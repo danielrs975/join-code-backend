@@ -6,7 +6,7 @@
 const express = require('express');
 const router = new express.Router();
 const auth = require('../middlewares/auth');
-const { userSignup, userLogin, userLogout } = require('../controllers/user.controller');
+const { userSignup, userLogin, userLogout, userDocuments } = require('../controllers/user.controller');
 
 /**
  * This router is for create a new user to the app
@@ -34,5 +34,7 @@ router.post('/users/login', userLogin);
  * There is no body for this request. The body is empty {}
  */
 router.post('/users/logout', auth, userLogout);
+
+router.get('/users/me/documents', auth, userDocuments);
 
 module.exports = router;

@@ -57,8 +57,31 @@ const userLogout = async (req, res) => {
 	}
 };
 
+/**
+ * This controller retrieve all the documents of the user. Share and
+ * not share
+ * @param {*} req The request information
+ * @param {*} res The response of the request
+ */
+const userDocuments = async (req, res) => {
+	try {
+		await req.user.populate('documents').execPopulate();
+		await req.user.populate('sharedDocuments').execPopulate();
+
+		res.send({
+			documents       : req.user.documents,
+			sharedDocuments : req.user.sharedDocuments.filter(
+				(document) => !req.user.documents.find((document_2) => document.name === document_2.name)
+			)
+		});
+	} catch (e) {
+		res.status(500).send(e);
+	}
+};
+
 module.exports = {
 	userSignup,
 	userLogin,
-	userLogout
+	userLogout,
+	userDocuments
 };
