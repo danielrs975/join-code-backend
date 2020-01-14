@@ -1,11 +1,15 @@
+const ot = require('ot');
 const {
 	docs,
 	addUserToDoc,
 	removeUserOfDoc,
 	getUserAndSaveCoords,
 	getUsersOfDoc,
-	getUser
+	getUser,
+	createOperation
 } = require('./utils/document');
+
+let userOps = {};
 
 module.exports = (io) => {
 	io.on('connection', (socket) => {
@@ -19,19 +23,32 @@ module.exports = (io) => {
 			}
 			socket.join(user.docId);
 			socket.to(user.docId).broadcast.emit('notification', `User ${user.socket_id} has joined!`);
-
+			userOps[socket.id] = [];
 			const doc = docs.find((doc) => doc._id === user.docId);
-			socket.emit('change', doc);
+			socket.emit('sendDoc', doc);
 			callback(socket.id);
 			socket.emit('user-new-position', getUsersOfDoc(null, user.docId));
 		});
 
 		// Documents events
-		socket.on('save', (newDoc) => {
-			const doc = docs.find((doc) => doc._id === newDoc._id);
-			// console.log("Updating the doc", newDoc);
-			doc.content = newDoc.content;
-			io.to(doc._id).emit('change', doc);
+		socket.on('save', ({ operation, docId, createdAt }) => {
+			const doc = docs.find((document) => document._id === docId);
+			let op = ot.TextOperation.fromJSON(operation);
+
+			let transformedOp;
+			doc.operations.forEach((opMade) => {
+				if (op.baseLength === opMade.baseLength) {
+					transformedOp = ot.TextOperation.transform(op, opMade);
+				}
+			});
+			console.log(transformedOp);
+			if (transformedOp) {
+				socket.emit('change', { op: transformedOp[1], createdAt });
+				socket.to(doc._id).broadcast.emit('change', { op: transformedOp[0], createdAt });
+			} else {
+				socket.to(doc._id).broadcast.emit('change', { op, createdAt });
+			}
+			doc.operations.push(op);
 		});
 
 		socket.on('update-cursor-position', ({ docId, coords }) => {

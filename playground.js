@@ -17,7 +17,7 @@ const executeOperation = (operation) => {
 	return newDocument;
 };
 
-const str = 'hola';
+const str = '\n';
 const position = 4;
 document = executeOperation(new ot.TextOperation().retain(position).insert(str).retain(document.length - position));
 console.log("Inserting 'hola': ", document);

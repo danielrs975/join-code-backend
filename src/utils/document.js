@@ -1,15 +1,18 @@
+const ot = require('ot');
 // This docs constant is going to represent
 // the docs that are currently loaded and being modify
 const docs = [
 	{
-		_id: '123',
-		modifyAt: new Date(),
-		content: ''
+		_id        : '123',
+		modifyAt   : new Date(),
+		content    : '',
+		operations : []
 	},
 	{
-		_id: '1234',
-		modifyAt: new Date(),
-		content: 'safansofisanonsaksaon'
+		_id        : '1234',
+		modifyAt   : new Date(),
+		content    : 'safansofisanonsaksaon',
+		operations : []
 	}
 ];
 
@@ -26,13 +29,13 @@ const addUserToDoc = (newUser) => {
 	const user = users.find((user) => user.socket_id === newUser.socket_id && user.docId === newUser.docId);
 	if (user) {
 		return {
-			error: 'The user is already in'
+			error : 'The user is already in'
 		};
 	}
 
 	users.push(newUser);
 	return {
-		user: newUser
+		user : newUser
 	};
 };
 
@@ -77,11 +80,27 @@ const getUsersOfDoc = (userId = null, docId) => {
 	return users.filter((user) => user.docId === docId && user.socket_id !== userId);
 };
 
+const createOperation = (operation, doc) => {
+	let op;
+	if (operation.type == 'insert')
+		op = new ot.TextOperation()
+			.retain(operation.position)
+			.insert(operation.text)
+			.retain(doc.content.length - operation.position);
+	else
+		op = new ot.TextOperation()
+			.retain(operation.position)
+			.delete(operation.text)
+			.retain(doc.content.length - operation.position - operation.text.length);
+	return op;
+};
+
 module.exports = {
 	docs,
 	addUserToDoc,
 	removeUserOfDoc,
 	getUser,
 	getUserAndSaveCoords,
-	getUsersOfDoc
+	getUsersOfDoc,
+	createOperation
 };
