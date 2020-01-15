@@ -1,13 +1,5 @@
 const ot = require('ot');
-const {
-	docs,
-	addUserToDoc,
-	removeUserOfDoc,
-	getUserAndSaveCoords,
-	getUsersOfDoc,
-	getUser,
-	createOperation
-} = require('./utils/document');
+const { removeUserOfDoc, getUsersOfDoc, addUserToDoc, getDoc, docs } = require('./utils/document');
 
 let userOps = {};
 
@@ -15,47 +7,46 @@ module.exports = (io) => {
 	io.on('connection', (socket) => {
 		// console.log("A new user arrived", socket.id);
 
-		socket.on('join', (options, callback) => {
-			// First we add the user to the document
-			const { error, user } = addUserToDoc({ socket_id: socket.id, ...options });
-			if (error) {
-				return;
-			}
+		socket.on('join', (userInfo, callback) => {
+			const { err, user } = addUserToDoc({ ...userInfo, socketId: socket.id });
+			if (err) callback({ err });
+			const doc = getDoc(user.docId);
 			socket.join(user.docId);
-			socket.to(user.docId).broadcast.emit('notification', `User ${user.socket_id} has joined!`);
-			userOps[socket.id] = [];
-			const doc = docs.find((doc) => doc._id === user.docId);
-			socket.emit('sendDoc', doc);
-			callback(socket.id);
-			socket.emit('user-new-position', getUsersOfDoc(null, user.docId));
+			// In the callback we going to send back the info of the users connected
+			socket.to(user.docId).emit('notification', 'A new user has joined');
+			callback({ doc, socketId: user.socketId });
 		});
 
-		// Documents events
-		socket.on('save', ({ operation, docId, createdAt }) => {
-			const doc = docs.find((document) => document._id === docId);
-			let op = ot.TextOperation.fromJSON(operation);
+		socket.on('operation', ({ operation, meta }, callback) => {
+			const doc = getDoc(meta.docId);
+			let OPERATIONPROCESSED = true;
+			operation = ot.TextOperation.fromJSON(operation);
+			// console.log(operation);
 
-			let transformedOp;
-			doc.operations.forEach((opMade) => {
-				if (op.baseLength === opMade.baseLength) {
-					transformedOp = ot.TextOperation.transform(op, opMade);
-				}
-			});
-			console.log(transformedOp);
-			if (transformedOp) {
-				socket.emit('change', { op: transformedOp[1], createdAt });
-				socket.to(doc._id).broadcast.emit('change', { op: transformedOp[0], createdAt });
-			} else {
-				socket.to(doc._id).broadcast.emit('change', { op, createdAt });
+			// This is the area that concern to the user that the operation came from
+			// In here we are going to process
+			//		the operation on the server
+			//		document
+			try {
+				doc.content = operation.apply(doc.content);
+				doc.operations.push({ operation, meta });
+				doc.version += 1;
+				console.log(docs[0]);
+			} catch (e) {
+				console.log('Error: ', e);
+				OPERATIONPROCESSED = false;
 			}
-			doc.operations.push(op);
-		});
+			// Send an aknowlegmentd to the user that the operation
+			// is complete
 
-		socket.on('update-cursor-position', ({ docId, coords }) => {
-			const user = getUserAndSaveCoords(socket.id, docId, coords);
-			if (user) {
-				socket.to(user.docId).broadcast.emit('user-new-position', getUsersOfDoc(null, docId));
-			}
+			callback(OPERATIONPROCESSED);
+			if (!OPERATIONPROCESSED) return; // If the operation is not processed then we return
+			// -----------------------------------------------------------------------
+
+			// In here we have to send all the operations to the other users
+			// In the meanwhile we are going to send the copy of all the doc
+			// In the future we send the operation
+			socket.to(meta.docId).broadcast.emit('operation', doc);
 		});
 
 		socket.on('disconnect', () => {

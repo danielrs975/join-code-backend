@@ -6,7 +6,8 @@ const docs = [
 		_id        : '123',
 		modifyAt   : new Date(),
 		content    : '',
-		operations : []
+		operations : [],
+		version    : 0
 	},
 	{
 		_id        : '1234',
@@ -26,7 +27,7 @@ const users = [];
  * @param {*} newUser The user who is going to join
  */
 const addUserToDoc = (newUser) => {
-	const user = users.find((user) => user.socket_id === newUser.socket_id && user.docId === newUser.docId);
+	const user = users.find((user) => user.socketId === newUser.socket_id && user.docId === newUser.docId);
 	if (user) {
 		return {
 			error : 'The user is already in'
@@ -80,19 +81,8 @@ const getUsersOfDoc = (userId = null, docId) => {
 	return users.filter((user) => user.docId === docId && user.socket_id !== userId);
 };
 
-const createOperation = (operation, doc) => {
-	let op;
-	if (operation.type == 'insert')
-		op = new ot.TextOperation()
-			.retain(operation.position)
-			.insert(operation.text)
-			.retain(doc.content.length - operation.position);
-	else
-		op = new ot.TextOperation()
-			.retain(operation.position)
-			.delete(operation.text)
-			.retain(doc.content.length - operation.position - operation.text.length);
-	return op;
+const getDoc = (docId) => {
+	return docs.find((doc) => doc._id === docId);
 };
 
 module.exports = {
@@ -102,5 +92,5 @@ module.exports = {
 	getUser,
 	getUserAndSaveCoords,
 	getUsersOfDoc,
-	createOperation
+	getDoc
 };
