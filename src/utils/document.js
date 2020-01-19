@@ -48,7 +48,7 @@ const addUserToDoc = (newUser) => {
  * @param {*} userId 
  */
 const removeUserOfDoc = (userId) => {
-	const index = users.findIndex((user) => user.socket_id === userId);
+	const index = users.findIndex((user) => user.socketId === userId);
 	if (index !== -1) {
 		return users.splice(index, 1)[0];
 	}
@@ -81,48 +81,11 @@ const getUserAndSaveCoords = (userId, docId, coords) => {
  */
 const getUsersOfDoc = (userId = null, docId) => {
 	if (userId === null) return users.filter((user) => user.docId === docId);
-	return users.filter((user) => user.docId === docId && user.socket_id !== userId);
+	return users.filter((user) => user.docId === docId && user.socketId !== userId);
 };
 
 const getDoc = (docId) => {
 	return docs.find((doc) => doc._id === docId);
-};
-
-// This function is under experiment. The idea is the following:
-// A operation arrive to the server. We try to applied but if there is
-// other operation going then we create an event to listen when that operation
-// finish
-const applyOperation = ({ operation, meta }, doc) => {
-	return new Promise((resolve, reject) => {
-		if (doc.opOnGoing) {
-			console.log(operation);
-			doc.eventEmitter.on(`${doc.opOnGoing.meta.socketId}`, () => {
-				try {
-					doc.opOnGoing = { operation, meta };
-					doc.content = operation.apply(doc.content);
-					doc.version++;
-					doc.eventEmitter.emit(`${doc.opOnGoing.meta.socketId}`);
-					resolve(doc.content);
-				} catch (e) {
-					reject(e);
-				}
-			});
-		} else {
-			doc.opOnGoing = { operation, meta };
-			console.log(operation);
-			setTimeout(() => {
-				try {
-					doc.content = operation.apply(doc.content);
-					doc.version++;
-					doc.eventEmitter.emit(`${doc.opOnGoing.meta.socketId}`);
-					doc.opOnGoing = undefined;
-					resolve(doc.content);
-				} catch (e) {
-					reject(e);
-				}
-			}, 3000);
-		}
-	});
 };
 
 const transformOperation = ({ operation, meta }, doc) => {
@@ -149,15 +112,6 @@ const transformOperation = ({ operation, meta }, doc) => {
 	console.log(operation);
 
 	return operation;
-	// if (operations.length > 0) {
-	// 	let composedOpe = operations[0];
-	// 	for (let i = 1; i < operations.length; i++) composedOpe = composedOpe.compose(operations[i]);
-	// 	console.log(composedOpe);
-	// 	const transformedOps = ot.TextOperation.transform(composedOpe, operation);
-	// 	// console.log(transformedOps);
-	// 	return transformedOps[1];
-	// }
-	// return operation;
 };
 
 module.exports = {
@@ -168,6 +122,5 @@ module.exports = {
 	getUserAndSaveCoords,
 	getUsersOfDoc,
 	getDoc,
-	applyOperation,
 	transformOperation
 };

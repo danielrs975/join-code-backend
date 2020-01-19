@@ -11,8 +11,14 @@ module.exports = (io) => {
 			const doc = getDoc(user.docId);
 			socket.join(user.docId);
 			// In the callback we going to send back the info of the users connected
-			socket.to(user.docId).emit('notification', 'A new user has joined');
-			callback({ doc, socketId: user.socketId });
+			// This is important to send the information of the cursor pos
+			socket.to(user.docId).broadcast.emit('notification', {
+				type : 'join',
+				msg  : 'A new user has joined',
+				info : { users: getUsersOfDoc(null, user.docId) }
+			});
+			const users = getUsersOfDoc(user.socketId, user.docId);
+			callback({ doc, socketId: user.socketId, users });
 		});
 
 		socket.on('operation', async ({ operation, meta }, callback) => {
@@ -31,7 +37,6 @@ module.exports = (io) => {
 					// In this space we are going to see if the version of the incoming op
 					// is the same that the server version
 					// console.log(meta);
-					let transOp;
 					if (meta.version < doc.version) {
 						console.log('You have to take in account the older operations');
 						operation = transformOperation({ operation, meta }, doc);
@@ -52,8 +57,8 @@ module.exports = (io) => {
 				// Send an aknowlegmentd to the user that the operation
 				// is complete
 				if (!OPERATIONPROCESSED) return callback(OPERATIONPROCESSED); // If the operation is not processed then we return
-				socket.to(meta.docId).broadcast.emit('experimentalOp', operation);
-				io.to(meta.docId).emit('operation', doc);
+				io.to(meta.docId).emit('changeVersion', doc);
+				socket.to(meta.docId).broadcast.emit('operation', operation);
 				callback(OPERATIONPROCESSED);
 			}, 50);
 
@@ -67,7 +72,9 @@ module.exports = (io) => {
 		socket.on('disconnect', () => {
 			const user = removeUserOfDoc(socket.id);
 			if (user) {
-				io.to(user.docId).emit('notification', `User ${user.socket_id} has left!!`);
+				io
+					.to(user.docId)
+					.emit('notification', { type: 'left', msg: `User ${user.socket_id} has left!!`, info: { user } });
 				io.to(user.docId).emit('user-leave', { users: getUsersOfDoc(null, user.docId), userRemoved: user });
 			}
 		});
