@@ -68,9 +68,9 @@ const getUser = (userId) => {
  * @param {*} coords the new coords to set
  */
 const getUserAndSaveCoords = (userId, docId, coords) => {
-	const index = users.findIndex((user) => user.socket_id === userId && user.docId === docId);
+	const index = users.findIndex((user) => user.socketId === userId && user.docId === docId);
 	if (index !== -1) {
-		users[index].coords = coords;
+		users[index].cursorPos = coords;
 		return users[index];
 	}
 };

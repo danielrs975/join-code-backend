@@ -1,5 +1,12 @@
 const ot = require('ot');
-const { removeUserOfDoc, getUsersOfDoc, addUserToDoc, getDoc, transformOperation } = require('./utils/document');
+const {
+	removeUserOfDoc,
+	getUsersOfDoc,
+	addUserToDoc,
+	getDoc,
+	transformOperation,
+	getUserAndSaveCoords
+} = require('./utils/document');
 
 module.exports = (io) => {
 	io.on('connection', (socket) => {
@@ -59,6 +66,12 @@ module.exports = (io) => {
 				if (!OPERATIONPROCESSED) return callback(OPERATIONPROCESSED); // If the operation is not processed then we return
 				io.to(meta.docId).emit('changeVersion', doc);
 				socket.to(meta.docId).broadcast.emit('operation', operation);
+				getUserAndSaveCoords(socket.id, meta.docId, meta.cursorPos);
+				socket.to(meta.docId).broadcast.emit('notification', {
+					type : 'pos',
+					msg  : 'There was a change in the other cursors',
+					info : { users: getUsersOfDoc(null, meta.docId) }
+				});
 				callback(OPERATIONPROCESSED);
 			}, 50);
 
