@@ -36,7 +36,7 @@ const userLogin = async (req, res) => {
 			token
 		});
 	} catch (e) {
-		res.status(400).send();
+		res.status(400).send({ msg: 'There is a problem with the email or password' });
 	}
 };
 
