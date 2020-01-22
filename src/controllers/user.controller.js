@@ -92,10 +92,28 @@ const userProfile = async (req, res) => {
 	}
 };
 
+/**
+ * This controller get the information about an specific user
+ * given its email
+ * @param {*} req The request information
+ * @param {*} res The response to send to the client
+ */
+const getUser = async (req, res) => {
+	try {
+		const email = req.query.email;
+		const user = await User.findOne({ email }).select('_id');
+		if (!user) return res.status(404).send({ msg: 'User not found' });
+		res.send({ _id: user._id });
+	} catch (e) {
+		res.status(500).send(e);
+	}
+};
+
 module.exports = {
 	userSignup,
 	userLogin,
 	userLogout,
 	userDocuments,
-	userProfile
+	userProfile,
+	getUser
 };
