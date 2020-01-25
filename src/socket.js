@@ -12,10 +12,10 @@ module.exports = (io) => {
 	io.on('connection', (socket) => {
 		// console.log("A new user arrived", socket.id);
 
-		socket.on('join', (userInfo, callback) => {
+		socket.on('join', async (userInfo, callback) => {
 			const { err, user } = addUserToDoc({ ...userInfo, socketId: socket.id });
 			if (err) callback({ err });
-			const doc = getDoc(user.docId);
+			const doc = await getDoc(user.docId);
 			socket.join(user.docId);
 			// In the callback we going to send back the info of the users connected
 			// This is important to send the information of the cursor pos
@@ -29,8 +29,8 @@ module.exports = (io) => {
 		});
 
 		socket.on('operation', async ({ operation, meta }, callback) => {
-			const doc = getDoc(meta.docId);
-			console.log(operation, meta);
+			const doc = await getDoc(meta.docId);
+			// console.log(operation, meta);
 			let OPERATIONPROCESSED = true;
 			operation = ot.TextOperation.fromJSON(operation);
 			// console.log(operation, meta);
@@ -54,7 +54,6 @@ module.exports = (io) => {
 					// const response = await applyOperation({ operation, meta }, doc);
 					// console.log(response);
 					doc.content = operation.apply(doc.content);
-
 					doc.operations.push({ operation, meta });
 					doc.version += 1;
 				} catch (e) {

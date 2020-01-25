@@ -1,22 +1,15 @@
 const ot = require('ot');
-const EventEmitter = require('events');
+const Document = require('../models/document');
+const mongoose = require('mongoose');
 // This docs constant is going to represent
 // the docs that are currently loaded and being modify
 const docs = [
 	{
-		_id          : '123',
-		modifyAt     : new Date(),
-		content      : '',
-		operations   : [],
-		version      : 0,
-		opOnGoing    : undefined,
-		eventEmitter : new EventEmitter()
-	},
-	{
-		_id        : '1234',
+		_id        : '123',
 		modifyAt   : new Date(),
-		content    : 'safansofisanonsaksaon',
-		operations : []
+		content    : '',
+		operations : [],
+		version    : 0
 	}
 ];
 
@@ -84,8 +77,22 @@ const getUsersOfDoc = (userId = null, docId) => {
 	return users.filter((user) => user.docId === docId && user.socketId !== userId);
 };
 
-const getDoc = (docId) => {
-	return docs.find((doc) => doc._id === docId);
+const getDoc = async (docId) => {
+	let doc = docs.find((doc) => doc._id.toString() === docId);
+	if (!doc) {
+		doc = await Document.findById(docId)
+			.populate({
+				path  : 'users',
+				model : 'User'
+			})
+			.populate({
+				path  : 'owner',
+				model : 'User'
+			});
+		doc = { ...doc._doc, version: 0, operations: [] };
+		docs.push(doc);
+	}
+	return doc;
 };
 
 const transformOperation = ({ operation, meta }, doc) => {

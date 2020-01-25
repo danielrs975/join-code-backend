@@ -6,7 +6,14 @@
 const express = require('express');
 const router = new express.Router();
 const auth = require('../middlewares/auth');
-const { userSignup, userLogin, userLogout, userDocuments, userProfile } = require('../controllers/user.controller');
+const {
+	userSignup,
+	userLogin,
+	userLogout,
+	userDocuments,
+	userProfile,
+	getUser
+} = require('../controllers/user.controller');
 
 /**
  * This router is for create a new user to the app
@@ -45,5 +52,10 @@ router.get('/users/me/documents', auth, userDocuments);
  * This route if for retrieve my profile info
  */
 router.get('/users/me/profile', auth, userProfile);
+
+/**
+ * This route get an especific user using its email
+ */
+router.get('/users', auth, getUser);
 
 module.exports = router;
