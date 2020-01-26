@@ -34,7 +34,7 @@ module.exports = (io) => {
 
 		socket.on('operation', async ({ operation, meta }, callback) => {
 			const doc = await getDoc(meta.docId);
-			console.log(operation, meta);
+			console.log(operation, meta, doc.content.length);
 			let OPERATIONPROCESSED = true;
 			operation = ot.TextOperation.fromJSON(operation);
 			// console.log(operation, meta);
