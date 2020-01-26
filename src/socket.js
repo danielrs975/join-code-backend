@@ -96,7 +96,6 @@ module.exports = (io) => {
 				stream.write(file_content);
 				stream.end();
 			});
-			console.log(term);
 			term['1'].write(`python3 ${file_name}\n`);
 		});
 

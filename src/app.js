@@ -22,18 +22,19 @@ let term = {};
 
 app.ws('/', function(ws, req) {
 	shell = 'bash';
-	term['1'] = pty.spawn(shell, [], {
-		name : 'xterm-color',
-		cwd  : process.env.PWD,
-		env  : process.env
-	});
+	if (!term['1']) {
+		term['1'] = pty.spawn(shell, [], {
+			name : 'xterm-color',
+			cwd  : process.env.PWD,
+			env  : process.env
+		});
+	}
 	term['1'].on('data', (data) => {
 		// console.log(data);
 		ws.send(data);
 	});
 
 	ws.on('message', (msg) => {
-		console.log(msg);
 		term['1'].write('python3 hello.py\n');
 	});
 });
