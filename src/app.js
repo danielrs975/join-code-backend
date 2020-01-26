@@ -17,27 +17,31 @@ require('express-ws')(app);
 
 app.use(express.json());
 app.use(cors());
+var shell;
+let term = {};
 
 app.ws('/', function(ws, req) {
-	let shell = 'bash';
-	let term = pty.spawn(shell, [], {
+	shell = 'bash';
+	term['1'] = pty.spawn(shell, [], {
 		name : 'xterm-color',
 		cwd  : process.env.PWD,
 		env  : process.env
 	});
-
-	term.on('data', (data) => {
+	term['1'].on('data', (data) => {
 		// console.log(data);
 		ws.send(data);
 	});
 
 	ws.on('message', (msg) => {
 		console.log(msg);
-		term.write('python3 hello.py\n');
+		term['1'].write('python3 hello.py\n');
 	});
 });
 
 app.use(userRoutes);
 app.use(docRoutes);
 
-module.exports = app;
+module.exports = {
+	app,
+	term
+};

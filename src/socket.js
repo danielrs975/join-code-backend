@@ -1,5 +1,7 @@
 const ot = require('ot');
-const FileSaver = require('file-saver');
+const fs = require('fs');
+const path = require('path');
+const { term } = require('./app');
 
 const {
 	removeUserOfDoc,
@@ -32,7 +34,7 @@ module.exports = (io) => {
 
 		socket.on('operation', async ({ operation, meta }, callback) => {
 			const doc = await getDoc(meta.docId);
-			// console.log(operation, meta);
+			console.log(operation, meta);
 			let OPERATIONPROCESSED = true;
 			operation = ot.TextOperation.fromJSON(operation);
 			// console.log(operation, meta);
@@ -83,11 +85,19 @@ module.exports = (io) => {
 			// In the future we send the operation
 		});
 
-		socket.on('download', (docId) => {
-			console.log(docId);
-			const doc = getDoc(docId);
-			FileSaver.saveAs([ doc.content ], doc.name, { type: 'text/plain;charset=utf-8' });
-			// Run in some way;
+		socket.on('run', async (docId) => {
+			const doc = await getDoc(docId);
+			let file_name = __dirname + '/' + doc.name;
+			console.log(file_name);
+			let file_content = doc.content;
+
+			let stream = fs.createWriteStream(file_name);
+			stream.once('open', function() {
+				stream.write(file_content);
+				stream.end();
+			});
+			console.log(term);
+			term['1'].write(`python3 ${file_name}\n`);
 		});
 
 		socket.on('disconnect', () => {

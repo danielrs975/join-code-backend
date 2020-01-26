@@ -13,7 +13,7 @@ const http = require('http');
 const socketio = require('socket.io');
 
 // APP Files
-const app = require('./app');
+const { app } = require('./app');
 
 // Socket.io configuration
 const http_server = http.createServer(app);
