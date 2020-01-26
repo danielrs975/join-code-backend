@@ -31,13 +31,13 @@ const documentHandler = require('./socket');
 // until the client disconnect
 documentHandler(io);
 
-
 // This is the server that going to receive all
 // the http protocol request
+app.listen(3002);
 http_server.listen(PORT, () => {
-    console.log('Server is up in the port ' + PORT)
-})
+	console.log('Server is up in the port ' + PORT);
+});
 
 socket_server.listen(SOCKET_PORT, () => {
-    console.log('Socket server is up in the port ' + SOCKET_PORT);
-})
+	console.log('Socket server is up in the port ' + SOCKET_PORT);
+});

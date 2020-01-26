@@ -1,4 +1,6 @@
 const ot = require('ot');
+const FileSaver = require('file-saver');
+
 const {
 	removeUserOfDoc,
 	getUsersOfDoc,
@@ -79,6 +81,13 @@ module.exports = (io) => {
 			// In here we have to send all the operations to the other users
 			// In the meanwhile we are going to send the copy of all the doc
 			// In the future we send the operation
+		});
+
+		socket.on('download', (docId) => {
+			console.log(docId);
+			const doc = getDoc(docId);
+			FileSaver.saveAs([ doc.content ], doc.name, { type: 'text/plain;charset=utf-8' });
+			// Run in some way;
 		});
 
 		socket.on('disconnect', () => {
