@@ -43,40 +43,39 @@ module.exports = (io) => {
 			// In here we are going to process
 			//		the operation on the server
 			//		document
-			setTimeout(async () => {
-				try {
-					// In this space we are going to see if the version of the incoming op
-					// is the same that the server version
-					// console.log(meta);
-					if (meta.version < doc.version) {
-						console.log('You have to take in account the older operations');
-						operation = transformOperation({ operation, meta }, doc);
-						// console.log(operation);
-						// return;
-					}
-
-					// const response = await applyOperation({ operation, meta }, doc);
-					// console.log(response);
-					doc.content = operation.apply(doc.content);
-					doc.operations.push({ operation, meta });
-					doc.version += 1;
-				} catch (e) {
-					console.log('Error: ', e);
-					OPERATIONPROCESSED = false;
+			try {
+				// In this space we are going to see if the version of the incoming op
+				// is the same that the server version
+				// console.log(meta);
+				if (meta.version < doc.version) {
+					console.log('You have to take in account the older operations');
+					operation = transformOperation({ operation, meta }, doc);
+					// console.log(operation);
+					// return;
 				}
-				// Send an aknowlegmentd to the user that the operation
-				// is complete
-				if (!OPERATIONPROCESSED) return callback(OPERATIONPROCESSED); // If the operation is not processed then we return
-				io.to(meta.docId).emit('changeVersion', doc);
-				socket.to(meta.docId).broadcast.emit('operation', operation);
-				getUserAndSaveCoords(socket.id, meta.docId, meta.cursorPos);
-				socket.to(meta.docId).broadcast.emit('notification', {
-					type : 'pos',
-					msg  : 'There was a change in the other cursors',
-					info : { users: getUsersOfDoc(null, meta.docId) }
-				});
-				callback(OPERATIONPROCESSED);
-			}, 50);
+
+				// const response = await applyOperation({ operation, meta }, doc);
+				// console.log(response);
+				console.log(doc.content.length, meta);
+				doc.content = operation.apply(doc.content);
+				doc.operations.push({ operation, meta });
+				doc.version += 1;
+			} catch (e) {
+				console.log('Error: ', e);
+				OPERATIONPROCESSED = false;
+			}
+			// Send an aknowlegmentd to the user that the operation
+			// is complete
+			if (!OPERATIONPROCESSED) return callback(OPERATIONPROCESSED, doc); // If the operation is not processed then we return
+			io.to(meta.docId).emit('changeVersion', doc);
+			socket.to(meta.docId).broadcast.emit('operation', operation);
+			getUserAndSaveCoords(socket.id, meta.docId, meta.cursorPos);
+			socket.to(meta.docId).broadcast.emit('notification', {
+				type : 'pos',
+				msg  : 'There was a change in the other cursors',
+				info : { users: getUsersOfDoc(null, meta.docId) }
+			});
+			callback(OPERATIONPROCESSED);
 
 			// -----------------------------------------------------------------------
 

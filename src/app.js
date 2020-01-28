@@ -18,6 +18,7 @@ app.use(express.json());
 app.use(cors());
 var shell;
 let term = {};
+let usersConnected = 0;
 
 app.ws('/', function(ws, req) {
 	shell = 'bash';
@@ -28,13 +29,22 @@ app.ws('/', function(ws, req) {
 			env  : process.env
 		});
 	}
+	usersConnected++;
 	term['1'].on('data', (data) => {
-		// console.log(data);
 		ws.send(data);
 	});
 
 	ws.on('message', (msg) => {
 		term['1'].write('python3 hello.py\n');
+	});
+
+	ws.on('close', () => {
+		console.log(usersConnected);
+		usersConnected--;
+		if (usersConnected == 0) {
+			term['1'].kill();
+			delete term['1'];
+		}
 	});
 });
 
