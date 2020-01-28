@@ -1,6 +1,5 @@
 /**
  * This is the middleware to verify if a user is logged
- * @author Daniel Rodriguez
  */
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');

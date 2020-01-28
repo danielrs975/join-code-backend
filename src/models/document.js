@@ -1,6 +1,5 @@
 /**
  * This is the model for the document
- * @author Daniel Rodriguez
  */
 const mongoose = require('mongoose');
 

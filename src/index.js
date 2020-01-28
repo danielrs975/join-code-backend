@@ -2,7 +2,6 @@
  * This is the initialization of the app itself.
  * In here we are going to start listening request from the
  * clients.
- * @author Daniel Rodriguez
  */
 
 // ENV Configuration

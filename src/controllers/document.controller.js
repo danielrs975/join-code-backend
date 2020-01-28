@@ -1,6 +1,5 @@
 /**
  * This is the controllers for the document model
- * @author Daniel Rodriguez
  */
 const mongoose = require('mongoose');
 const Document = require('../models/document');

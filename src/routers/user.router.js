@@ -1,6 +1,5 @@
 /**
  * This contains all the routes for the user routes
- * @author Daniel Rodriguez
  */
 
 const express = require('express');

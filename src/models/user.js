@@ -1,6 +1,5 @@
 /**
  * This is the model for the user
- * @author Daniel Rodriguez
  */
 const mongoose = require('mongoose');
 const validator = require('validator');

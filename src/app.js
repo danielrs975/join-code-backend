@@ -1,7 +1,6 @@
 /**
  * This script contain the initialization
  * of the Join Code API.
- * @author Daniel Rodriguez
  */
 
 const express = require('express');

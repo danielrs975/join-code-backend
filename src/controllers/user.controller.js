@@ -1,6 +1,5 @@
 /**
  * This is the controller for the user model
- * @author Daniel Rodriguez
  */
 
 const User = require('../models/user');

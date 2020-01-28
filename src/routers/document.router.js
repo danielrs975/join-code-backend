@@ -1,7 +1,6 @@
 /**
  * This contains all the routes for the document
  * model
- * @author Daniel Rodriguez
  */
 const express = require('express');
 const auth = require('../middlewares/auth');
