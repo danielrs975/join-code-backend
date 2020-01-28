@@ -34,10 +34,6 @@ app.ws('/', function(ws, req) {
 		ws.send(data);
 	});
 
-	ws.on('message', (msg) => {
-		term['1'].write('python3 hello.py\n');
-	});
-
 	ws.on('close', () => {
 		console.log(usersConnected);
 		usersConnected--;

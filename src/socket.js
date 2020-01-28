@@ -84,7 +84,7 @@ module.exports = (io) => {
 			// In the future we send the operation
 		});
 
-		socket.on('run', async (docId) => {
+		socket.on('runPython', async (docId) => {
 			const doc = await getDoc(docId);
 			let file_name = __dirname + '/' + doc.name;
 			console.log(file_name);
@@ -96,6 +96,37 @@ module.exports = (io) => {
 				stream.end();
 			});
 			term['1'].write(`python3 ${file_name}\n`);
+		});
+
+		socket.on('runC', async (docId) => {
+			const doc = await getDoc(docId);
+			let file_name = __dirname + '/' + doc.name;
+			console.log(file_name);
+			let file_content = doc.content;
+
+			let stream = fs.createWriteStream(file_name);
+			stream.once('open', function() {
+				stream.write(file_content);
+				stream.end();
+			});
+			term['1'].write(`gcc ${file_name} -o tmp\n`);
+			term['1'].write(`./tmp\n`);
+		});
+
+		socket.on('runJava', async (docId) => {
+			const doc = await getDoc(docId);
+			let file_name = __dirname + '/' + doc.name;
+			console.log(file_name);
+			let file_content = doc.content;
+
+			let stream = fs.createWriteStream(file_name);
+			stream.once('open', function() {
+				stream.write(file_content);
+				stream.end();
+			});
+
+			term['1'].write(`javac -d . ${file_name}\n`);
+			term['1'].write(`java ${doc.name.split(".")[0]}\n`);
 		});
 
 		socket.on('disconnect', () => {
