@@ -1,6 +1,7 @@
 const ot = require('ot');
 const fs = require('fs');
 const path = require('path');
+const Document = require('./models/document');
 const { term } = require('./app');
 
 const {
@@ -60,6 +61,7 @@ module.exports = (io) => {
 				doc.content = operation.apply(doc.content);
 				doc.operations.push({ operation, meta });
 				doc.version += 1;
+				await Document.findByIdAndUpdate(meta.docId, { content: doc.content });
 			} catch (e) {
 				console.log('Error: ', e);
 				OPERATIONPROCESSED = false;
